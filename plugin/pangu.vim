@@ -77,7 +77,7 @@ function! PanGuSpacingCore(mode) range
     silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)!\s*/\1！/g'
     silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\):\s*/\1：/g'
     silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)?\s*/\1？/g'
-    silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)\\\s*/\1、/g'
+    silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)\\\s*/\1 \\/g'
     " 处理一对圆括号。注意：由于 VimScript 正则表达式不支持递归，所以这里不支持有嵌套的括号。
     " 注意：即使支持正则表达式递归，或者手工模拟有限递归，也需要注意括号嵌套错乱的问题，即：
     " - `<中<en>>`
@@ -88,15 +88,15 @@ function! PanGuSpacingCore(mode) range
     silent! execute firstline . ',' . lastline . 's/(\([\u4e00-\u9fa5\u3040-\u30FF]\)/（\1/g'
     silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\))/\1）/g'
 
-    let bracket_left = g:pangu_punctuation_brackets[0]
-    let bracket_right = g:pangu_punctuation_brackets[1]
-    " 预处理，将中括号(【,】)更换为特定类型的中括号(『』)，避免处理过程中无法正常处理。
-    silent! execute firstline . ',' . lastline . 's/' . bracket_left . '/〘/g'
-    silent! execute firstline . ',' . lastline . 's/' . bracket_right . '/〙/g'
-    " 处理一对方括号。注意：不支持有嵌套的方括号。
-    silent! execute firstline . ',' . lastline . 's/\[\([\u4e00-\u9fa5\u3040-\u30FF][^[\]]*\|[^[\]]*[\u4e00-\u9fa5\u3040-\u30FF]\)\]/' . bracket_left . '\1' . bracket_right . '/g'
-    silent! execute firstline . ',' . lastline . 's/\[\([\u4e00-\u9fa5\u3040-\u30FF]\)/' . bracket_left . '\1/g'
-    silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)\]/\1' . bracket_right . '/g'
+    " let bracket_left = g:pangu_punctuation_brackets[0]
+    " let bracket_right = g:pangu_punctuation_brackets[1]
+    " " 预处理，将中括号(【,】)更换为特定类型的中括号(『』)，避免处理过程中无法正常处理。
+    " silent! execute firstline . ',' . lastline . 's/' . bracket_left . '/〘/g'
+    " silent! execute firstline . ',' . lastline . 's/' . bracket_right . '/〙/g'
+    " " 处理一对方括号。注意：不支持有嵌套的方括号。
+    " silent! execute firstline . ',' . lastline . 's/\[\([\u4e00-\u9fa5\u3040-\u30FF][^[\]]*\|[^[\]]*[\u4e00-\u9fa5\u3040-\u30FF]\)\]/' . bracket_left . '\1' . bracket_right . '/g'
+    " silent! execute firstline . ',' . lastline . 's/\[\([\u4e00-\u9fa5\u3040-\u30FF]\)/' . bracket_left . '\1/g'
+    " silent! execute firstline . ',' . lastline . 's/\([\u4e00-\u9fa5\u3040-\u30FF]\)\]/\1' . bracket_right . '/g'
     " 处理一对书名号，注意：不支持有嵌套的书名号。
     silent! execute firstline . ',' . lastline . 's/<\([\u4e00-\u9fa5\u3040-\u30FF][^<>]*\|[^<>]*[\u4e00-\u9fa5\u3040-\u30FF]\)>/《\1》/g'
     silent! execute firstline . ',' . lastline . 's/<\([\u4e00-\u9fa5\u3040-\u30FF]\)/《\1/g'
@@ -105,22 +105,22 @@ function! PanGuSpacingCore(mode) range
     silent! execute firstline . ',' . lastline . 's/<《/《/g'
     silent! execute firstline . ',' . lastline . 's/》>/》/g'
 
-    " 修复 markdown 链接所使用的标点。
-    " 参考链接
-    silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]][' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]/[\1][\2]/g'
-    " 内联链接
-    silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]][（(]\([^' . bracket_right . ')]\+\)[）)]/[\1](\2)/g'
-    " WiKi 链接：
-    " - [『中文条目』] -> [[中文条目]]
-    " - [[en 条目』] -> [[en 条目]]
-    " - [『条目 en]] -> [[条目 en]]
-    silent! execute firstline . ',' . lastline . 's/\[[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]\]/[[\1]]/g'
-    " 修复 wiki 链接 [http://www.example.com/ 示例]
-    silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\(https\?:\/\/\S\+\s\+[^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]/[\1]/g'
-
-    " 恢复预处理，将之前预处理的字符恢复。
-    silent! execute firstline . ',' . lastline . 's/〘/' . bracket_left . '/g'
-    silent! execute firstline . ',' . lastline . 's/〙/' . bracket_right . '/g'
+    " " 修复 markdown 链接所使用的标点。
+    " " 参考链接
+    " silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]][' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]/[\1][\2]/g'
+    " " 内联链接
+    " silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]][（(]\([^' . bracket_right . ')]\+\)[）)]/[\1](\2)/g'
+    " " WiKi 链接：
+    " " - [『中文条目』] -> [[中文条目]]
+    " " - [[en 条目』] -> [[en 条目]]
+    " " - [『条目 en]] -> [[条目 en]]
+    " silent! execute firstline . ',' . lastline . 's/\[[' . bracket_left . '[]\([^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]\]/[[\1]]/g'
+    " " 修复 wiki 链接 [http://www.example.com/ 示例]
+    " silent! execute firstline . ',' . lastline . 's/[' . bracket_left . '[]\(https\?:\/\/\S\+\s\+[^' . bracket_right . '\]]\+\)[' . bracket_right . '\]]/[\1]/g'
+    "
+    " " 恢复预处理，将之前预处理的字符恢复。
+    " silent! execute firstline . ',' . lastline . 's/〘/' . bracket_left . '/g'
+    " silent! execute firstline . ',' . lastline . 's/〙/' . bracket_right . '/g'
   endif
 
   " TODO: 半角单双引号无法有效判断起始和结束，以正确替换成全角单双引号。
